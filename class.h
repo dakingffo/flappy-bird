@@ -1,4 +1,7 @@
 #pragma once
+#include <Windows.h>
+#include <mmsystem.h>
+#pragma comment(lib,"winmm.lib")
 #pragma comment(lib,"MSIMG32.LIB")
 #include <graphics.h>
 #include <string>
@@ -52,10 +55,11 @@ class barrier {
 public:
 	POINT pos;
 	IMAGE barrier_res;
+	bool flag;
 	std::pair<int, int>X;
     std::pair<int, int>Y;
 	int type;
-	barrier(int n,int seed){
+	barrier(int n,int seed):flag(false){
 		srand(seed);
 		pos.x = 1440;
 		type = n;
@@ -66,7 +70,7 @@ public:
 			break;
 		case 2:
 			loadimage(&barrier_res, _T("img/barrier/test.jpg"), 100, 400);
-			pos.y = rand() % 300 + 440;
+			pos.y = rand() % 300 + 465;
 			break;
 		}
 	}
@@ -79,7 +83,7 @@ public:
 			break;
 		case 2:
 			X.first = pos.x-55 , X.second = pos.x + 40;
-			Y.first = pos.y-80, Y.second = pos.y + 360;
+			Y.first = pos.y-80, Y.second = pos.y + 355;
 			break;
 		}
 	}
