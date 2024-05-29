@@ -9,15 +9,38 @@
 #include <cstdlib>
 #include <vector>
 #include <utility>
+using namespace std;
 extern int real_frame_counter;
 const int bird_anim_num = 5;
-IMAGE bird_anim[bird_anim_num];
-IMAGE bird_over1, bird_over2, bird_over3[bird_anim_num];
+inline void putimage_alpha(int x, int y, IMAGE* img);
+class board {
+public:
+	IMAGE up_stage;
+	IMAGE down_stage;
+	IMAGE numbers;
+	board() {
+		loadimage(&up_stage, _T("img/board/0.png"),242,240);
+		loadimage(&down_stage, _T("img/board/1.png"),242,240);
+	}
+	void stage(int board_down_time) {
+		if(board_down_time>0)putimage_alpha(490, 520, &down_stage);
+		else putimage_alpha(490, 520, &up_stage);
+	}
+	void show_point(int point) {
+		settextstyle(63, 22, _T("·½ÕýÒ¦Ìå"));
+		settextcolor(YELLOW);
+		setbkmode(TRANSPARENT);
+		if(point<20)outtextxy(675, 620, to_wstring(point/2).c_str());
+		else outtextxy(664, 620, to_wstring(point / 2).c_str());
+	}
+};
 class bird {
 public:
+	POINT pos;
+	IMAGE bird_anim[bird_anim_num];
+	IMAGE bird_over1, bird_over2, bird_over3[bird_anim_num];
 	int uptimes;
 	int downspeed;
-	POINT pos;
 	bird() :pos({ 280,250 }), uptimes(0), downspeed(3) {
 		load_bird();
 	}
@@ -34,9 +57,9 @@ public:
 	}
 	void go_up() {
 		if (uptimes >= 15)
-			pos.y -= 18;
+			pos.y -= 17;
 		else if (uptimes >= 9)pos.y -= 12;
-		else pos.y -= 5;
+		else pos.y -= 4;
 		uptimes--;
 	}
 	void go_down(bool gravity) {
@@ -66,25 +89,17 @@ public:
 		switch (type) {
 		case 1:
 			loadimage(&barrier_res, _T("img/barrier/test.jpg"), 100, 400);
-			pos.y = rand() % 300-300;
+			pos.y = rand() % 300-290;
 			break;
 		case 2:
 			loadimage(&barrier_res, _T("img/barrier/test.jpg"), 100, 400);
-			pos.y = rand() % 300 + 465;
+			pos.y = rand() % 250 + 480;
 			break;
 		}
 	}
 	void go_left(int speedup) {
 		pos.x -= 4 + speedup;
-		switch (type) {
-		case 1:
-			X.first = pos.x - 55, X.second = pos.x + 40;
-			Y.first = pos.y-80, Y.second = pos.y + 360;
-			break;
-		case 2:
-			X.first = pos.x-55 , X.second = pos.x + 40;
-			Y.first = pos.y-80, Y.second = pos.y + 355;
-			break;
-		}
+		X.first = pos.x - 55, X.second = pos.x + 40;
+		Y.first = pos.y - 75, Y.second = pos.y + 360;
 	}
 };
