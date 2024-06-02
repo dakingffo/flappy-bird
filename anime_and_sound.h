@@ -35,7 +35,7 @@ inline void menu_animation(bird& title_bird, quit_button& thequit, play_button& 
 	setbkmode(TRANSPARENT);
 	outtextxy(850, 296, to_wstring(best).c_str());
 }
-inline void gaming_animation(int end, int overtype , bird& player, vector<barrier>& barriers,board& theboard,int board_down_time,text&thetext) {
+inline void gaming_animation(int end, int overtype , bird& player, vector<barrier>& barriers,board& theboard,int board_down_time,text&thetext,bool new_record) {
 	if (++real_frame_counter % 2 == 0)
 		back_ground_frame_counter++;
 	if (real_frame_counter % 3 == 0)bird_frame_counter++;
@@ -47,7 +47,7 @@ inline void gaming_animation(int end, int overtype , bird& player, vector<barrie
 	else if (overtype == 1)putimage_alpha(player.pos.x, player.pos.y, &player.bird_over1);
 	else if (overtype == 2)putimage_alpha(player.pos.x, player.pos.y, &player.bird_over2);
 	else if (overtype == 3)putimage_alpha(player.pos.x, player.pos.y, &player.bird_over3[bird_frame_counter]);
-	if(end>0)putimage_alpha(thetext.pos[2].x, thetext.pos[2].y, &thetext.context[2]);
+	if(end>0&&new_record)putimage_alpha(thetext.pos[2].x, thetext.pos[2].y, &thetext.context[2]);
 	for (int i = 0; i < barriers.size(); i++)
 		putimage_alpha(barriers[i].pos.x, barriers[i].pos.y, &barriers[i].barrier_res);
 	theboard.stage(board_down_time);

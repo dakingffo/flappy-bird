@@ -68,6 +68,7 @@ int main() {
 				int overtype = 0;
 				int hardtype = 0;
 				int point_count = 0;
+				bool new_record = false;
 				while (gaming) {
 					gaming_frame_counter++;
 					DWORD begin_time = GetTickCount();
@@ -109,7 +110,8 @@ int main() {
 						barriers.push_back(barrier(2, rand() % (100 + hardtype), hardtype));
 					}
 					hardtype += gaming_frame_counter / 1080, gaming_frame_counter %= 1080;
-					gaming_animation(end, overtype, player, barriers, theboard, board_down_time,thetext);
+					if (point_count / 2 > best) new_record = true;
+					gaming_animation(end, overtype, player, barriers, theboard, board_down_time,thetext,new_record);
 					theboard.show_point(point_count);
 					FlushBatchDraw();
 					DWORD end_time = GetTickCount();
