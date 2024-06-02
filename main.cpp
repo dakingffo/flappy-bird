@@ -21,7 +21,7 @@ bool checkend(bool &gravity, bird& player,vector<barrier>::iterator i,int &overt
 int main() {
 	int best;
 	FILE* fp;
-	fopen_s(&fp,"record.txt", "w+");
+	fopen_s(&fp,"record.txt", "r");
 	if (fscanf_s(fp, "%d", &best)==EOF)best = 0;
 	fclose(fp);
 	srand(time(0));
