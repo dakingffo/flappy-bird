@@ -31,9 +31,9 @@ int main() {
 	bool running = true;
 	bool gaming = false;
 	bird title_bird(540,35,170,170);
-	play_button theplay(435, 470, 370, 150, 0,&gaming);
-	quit_button thequit(890, 470, 160, 150, 1,&running);
-	bgm_button thebgm(200, 470, 150, 150, 2);
+	play_button theplay(440, 470, 370, 150, 0,&gaming);
+	quit_button thequit(890, 471, 160, 150, 1,&running);
+	bgm_button thebgm(200, 466, 150, 150, 2);
 	board theboard;
 	bird player;
 	vector<barrier>barriers;
@@ -43,7 +43,7 @@ int main() {
 	sound();
 	while (running) {
 		DWORD begin_time = GetTickCount();
-		menu_animation(title_bird,thequit,theplay,thebgm,thetext,best);
+		menu_animation(title_bird,thequit,theplay,thebgm,thetext,best,gaming);
 		while (peekmessage(&msg)) {
 			if (msg.message == WM_LBUTTONDOWN) {
 				if (theplay.check(msg.x, msg.y)) {
@@ -62,6 +62,7 @@ int main() {
 			}
 			 if (gaming) {
 				int gaming_frame_counter = 0;
+				int board_comeout = 65;
 				int board_down_time = 0;
 				bool gravity = true;
 				int end = 0;
@@ -70,6 +71,7 @@ int main() {
 				int point_count = 0;
 				bool new_record = false;
 				while (gaming) {
+					board_comeout--;
 					gaming_frame_counter++;
 					DWORD begin_time = GetTickCount();
 					if (end == 1)gaming = false;
@@ -83,6 +85,7 @@ int main() {
 						else if (!i->flag && player.pos.x > i->pos.x) {
 							i->flag = true;
 							mciSendString(_T("play point from 0"), NULL, 0, NULL);
+							player.getting_point = 40;
 							point_count++;
 						}
 						if (i->pos.x < -200) i = barriers.erase(i);
@@ -111,8 +114,8 @@ int main() {
 					}
 					hardtype += gaming_frame_counter / 1080, gaming_frame_counter %= 1080;
 					if (point_count / 2 > best) new_record = true;
-					gaming_animation(end, overtype, player, barriers, theboard, board_down_time,thetext,new_record);
-					theboard.show_point(point_count);
+					gaming_animation(end, overtype, player, barriers, theboard, board_down_time,thetext,new_record,board_comeout);
+					theboard.show_point(point_count,board_comeout);
 					FlushBatchDraw();
 					DWORD end_time = GetTickCount();
 					DWORD dtime = end_time - begin_time;

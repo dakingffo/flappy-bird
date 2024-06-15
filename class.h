@@ -132,16 +132,23 @@ public:
 		loadimage(&up_stage, _T("img/board/0.png"),242,240);
 		loadimage(&down_stage, _T("img/board/1.png"),242,240);
 	}
-	void stage(int board_down_time) {
-		if(board_down_time>0)putimage_alpha(490, 520, &down_stage);
-		else putimage_alpha(490, 520, &up_stage);
+	void stage(int board_down_time,int board_comeout) {
+		if (board_comeout>0) {
+			putimage_alpha(490, 520+board_comeout*4, &down_stage);
+		}
+		else {
+			if (board_down_time > 0)putimage_alpha(490, 520, &down_stage);
+			else putimage_alpha(490, 520, &up_stage);
+		}
 	}
-	void show_point(int point) {
-		settextstyle(63, 22, _T("方正姚体"));
-		settextcolor(YELLOW);
-		setbkmode(TRANSPARENT);
-		if(point<20)outtextxy(675, 620, to_wstring(point/2).c_str());
-		else outtextxy(664, 620, to_wstring(point / 2).c_str());
+	void show_point(int point,int board_comeout) {
+		if (point>0) {
+			settextstyle(63, 22, _T("方正姚体"));
+			settextcolor(YELLOW);
+			setbkmode(TRANSPARENT);
+			if (point < 20)outtextxy(675, 620, to_wstring(point / 2).c_str());
+			else outtextxy(664, 620, to_wstring(point / 2).c_str());
+		}
 	}
 };
 class bird {
@@ -149,9 +156,11 @@ public:
 	POINT pos;
 	IMAGE bird_anim[bird_anim_num];
 	IMAGE bird_over1, bird_over2, bird_over3[bird_anim_num];
+	IMAGE point[bird_anim_num];
+	int getting_point;
 	int uptimes;
 	int downspeed;
-	bird(int x=280,int y=-150,int w=110,int h=110) :pos({ x,y }), uptimes(0), downspeed(4) {
+	bird(int x=280,int y=-150,int w=110,int h=110) :pos({ x,y }), uptimes(0), downspeed(4),getting_point(0) {
 		load_bird(w,h);
 	}
 	void load_bird(int w,int h) {
@@ -161,6 +170,11 @@ public:
 			path2=L"img/bird/over3_" + std::to_wstring(i) + L".png";
 			loadimage(&bird_anim[i], path1.c_str(), w, h);
 			loadimage(&bird_over3[i], path2.c_str(), w, h);
+		}
+		for (size_t i = 0; i < 4; i++) {
+			wstring path;
+			path = L"img/bird/get_point" + std::to_wstring(i) + L".png";
+			loadimage(&point[i], path.c_str(), 100, 100);
 		}
 		loadimage(&bird_over1, _T("img/bird/over1.png"), w, h);
 		loadimage(&bird_over2, _T("img/bird/over2.png"), w, h);
