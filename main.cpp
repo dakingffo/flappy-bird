@@ -1,5 +1,6 @@
 #include "class.h"
 #include "anime_and_sound.h"
+#include "ctime"
 bool checkend(bool &gravity, bird& player,vector<barrier>::iterator i,int &overtype) {
 	if (i->type == 1 && player.pos.y <= i->Y.second || i->type == 2 && player.pos.y >= i->Y.first)
 		if (i->X.first - 10 <= player.pos.x && player.pos.x <= i->X.first + 10) {
