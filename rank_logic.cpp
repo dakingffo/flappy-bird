@@ -1,10 +1,10 @@
-#include "Leaderboard.h"
+#include "Rank.h"
 
 int main() {
-    Leaderboard leaderboard("record.txt");
-    leaderboard.loadData();
-    leaderboard.sortPlayers();
-    leaderboard.display();
+    Rank rank("rank.txt");
+    rank.loadData();
+    rank.sortPlayers();
+    rank.display();
     while (true);
     return 0;
 }

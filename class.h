@@ -1,8 +1,9 @@
 #pragma once
+
 #include <Windows.h>
 #include <mmsystem.h>
-#pragma comment(lib,"winmm.lib")
-#pragma comment(lib,"MSIMG32.LIB")
+#pragma comment(lib, "winmm.lib")
+#pragma comment(lib, "MSIMG32.LIB")
 #include <graphics.h>
 #include <string>
 #include <iostream>
@@ -11,227 +12,295 @@
 #include <utility>
 #include <cstdio>
 #include <cstring>
+
 using namespace std;
+
+// 外部全局变量
 extern int real_frame_counter;
-const int bird_anim_num = 5;
-const int button_anim_num = 3;
+
+// 常量定义
+const int bird_anim_num = 5;    // 鸟的动画帧数
+const int button_anim_num = 3;  // 按钮的动画帧数
+
+// 全局变量
 bool bgm = true;
+
+// 函数声明
 inline void putimage_alpha(int x, int y, IMAGE* img);
-class text {
+
+// 文本类
+class Text {
 public:
-	POINT pos[3];
-	IMAGE context[3];
-	text() {
-		pos[0] = { 310,214 };
-		pos[1] = { 530,220 };
-		pos[2] = { 425,165 };
-		loadimage(&context[0], _T("img/text/best.png"), 300, 300);
-		loadimage(&context[1], _T("img/text/record.png"), 300, 300);
-		loadimage(&context[2], _T("img/text/new_record.png"), 400, 400);
-	}
-};
-class button {
-public:
-	POINT pos;
-	IMAGE button_anim[button_anim_num];
-	pair<int,int> X;
-	pair<int, int>Y;
-	bool animing;
-	button(int x, int y,int w,int h, int type) :animing(false){
-		X.first=pos.x = x;
-		Y.first=pos.y = y;
-		for (size_t i = 0; i < button_anim_num; i++) {
-			wstring path;
-			path = L"img/button/" + std::to_wstring(type) +L"/" + std::to_wstring(i) + L".png";
-			loadimage(&button_anim[i], path.c_str(), w, h);
-		}
-	}
-	bool check(int x, int y) {
-		if (X.first <= x && x <= X.second && Y.first <= y && y <= Y.second) {
-			return animing = true;
-		}
-		else return false;
-	}
-};
-class play_button :public button {
-private:
-	bool* gaming_location;
-public:
-	play_button(int x, int y, int w, int h, int type,bool*gaming) :button(x, y, w, h, type),gaming_location(gaming) {
-		X.second = X.first + w;
-		Y.second = Y.first + h;
-	}
-	void anime(int idx) {
-		if (animing) {
-			putimage_alpha(pos.x, pos.y, &button_anim[idx]);
-			if (idx == 2) {
-				animing = false;
-				*gaming_location = true;
-			}
-		}
-		else putimage_alpha(pos.x, pos.y, &button_anim[0]);
-	}
-};
-class quit_button :public button {
-private:
-	bool* running_location;
-public:
-	quit_button(int x, int y, int w, int h, int type,bool*running) :button(x, y, w, h, type),running_location(running) {
-		X.second = X.first + w;
-		Y.second = Y.first + h;
-	}
-	void anime(int idx) {
-		if (animing) { 
-			putimage_alpha(pos.x, pos.y, &button_anim[idx]); 
-		   if (idx == 2) {
-			animing = false;
-			*running_location = false;
-		   }
-		}
-		else
-			putimage_alpha(pos.x, pos.y, &button_anim[0]);
-	}
+    POINT pos[3];          // 位置数组
+    IMAGE context[3];      // 图片数组
+
+    Text() {
+        pos[0] = { 310, 214 };
+        pos[1] = { 530, 220 };
+        pos[2] = { 425, 165 };
+
+        loadimage(&context[0], _T("img/text/best.png"), 300, 300);
+        loadimage(&context[1], _T("img/text/record.png"), 300, 300);
+        loadimage(&context[2], _T("img/text/new_record.png"), 400, 400);
+    }
 };
 
-class bgm_button :public button {
+// 按钮类
+class Button {
 public:
-	int record;
-	int change_num;
-	bgm_button(int x, int y, int w, int h, int type) :button(x, y, w, h, type),record(0),change_num(0) {
-		X.second = X.first + w;
-		Y.second = Y.first + h;
-	}
-	void anime(int idx) {
-		if (animing) { 
-			if (change_num % 2==0)
-			putimage_alpha(pos.x, pos.y, &button_anim[idx]); 
-			else putimage_alpha(pos.x, pos.y, &button_anim[2-idx]);
-		   if (idx == 2) {
-			animing = false;
-			
-			if (++change_num % 2) { 
-				mciSendString(_T("pause bgm"), NULL, 0, NULL); 
-				record = 2;
-			}
-			else { 
-				mciSendString(_T("resume bgm"), NULL, 0, NULL);
-				record = 0; }
-		   }
-		}
-		else 
-			putimage_alpha(pos.x, pos.y, &button_anim[record]);
-	}
+    POINT pos;                      // 按钮位置
+    IMAGE button_anim[button_anim_num]; // 按钮动画
+    pair<int, int> X;               // X坐标范围
+    pair<int, int> Y;               // Y坐标范围
+    bool animing;                   // 是否正在动画
+
+    Button(int x, int y, int w, int h, int type) : animing(false) {
+        X.first = pos.x = x;
+        Y.first = pos.y = y;
+        for (size_t i = 0; i < button_anim_num; i++) {
+            wstring path;
+            path = L"img/button/" + std::to_wstring(type) + L"/" + std::to_wstring(i) + L".png";
+            loadimage(&button_anim[i], path.c_str(), w, h);
+        }
+    }
+
+    bool check(int x, int y) {
+        if (X.first <= x && x <= X.second && Y.first <= y && y <= Y.second) {
+            return animing = true;
+        } else {
+            return false;
+        }
+    }
 };
 
-class board {
+// 开始按钮类，继承自Button
+class PlayButton : public Button {
+private:
+    bool* gaming_location;
+
 public:
-	IMAGE up_stage;
-	IMAGE down_stage;
-	IMAGE numbers;
-	board() {
-		loadimage(&up_stage, _T("img/board/0.png"),242,240);
-		loadimage(&down_stage, _T("img/board/1.png"),242,240);
-	}
-	void stage(int board_down_time,int board_comeout) {
-		if (board_comeout>0) {
-			putimage_alpha(490, 520+board_comeout*4, &down_stage);
-		}
-		else {
-			if (board_down_time > 0)putimage_alpha(490, 520, &down_stage);
-			else putimage_alpha(490, 520, &up_stage);
-		}
-	}
-	void show_point(int point,int board_comeout) {
-		if (point>0) {
-			settextstyle(63, 22, _T("方正姚体"));
-			settextcolor(YELLOW);
-			setbkmode(TRANSPARENT);
-			if (point < 20)outtextxy(675, 620, to_wstring(point / 2).c_str());
-			else outtextxy(664, 620, to_wstring(point / 2).c_str());
-		}
-	}
+    PlayButton(int x, int y, int w, int h, int type, bool* gaming)
+            : Button(x, y, w, h, type), gaming_location(gaming) {
+        X.second = X.first + w;
+        Y.second = Y.first + h;
+    }
+
+    void animate(int idx) {
+        if (animing) {
+            putimage_alpha(pos.x, pos.y, &button_anim[idx]);
+            if (idx == 2) {
+                animing = false;
+                *gaming_location = true;
+            }
+        } else {
+            putimage_alpha(pos.x, pos.y, &button_anim[0]);
+        }
+    }
 };
-class bird {
+
+// 退出按钮类，继承自Button
+class QuitButton : public Button {
+private:
+    bool* running_location;
+
 public:
-	POINT pos;
-	IMAGE bird_anim[bird_anim_num];
-	IMAGE bird_over1, bird_over2, bird_over3[bird_anim_num];
-	IMAGE point[bird_anim_num];
-	int getting_point;
-	int uptimes;
-	int downspeed;
-	bird(int x=280,int y=-150,int w=110,int h=110) :pos({ x,y }), uptimes(0), downspeed(4),getting_point(0) {
-		load_bird(w,h);
-	}
-	void load_bird(int w,int h) {
-		for (size_t i = 0; i < bird_anim_num; i++) {
-			wstring path1,path2;
-			path1 = L"img/bird/" + std::to_wstring(i) + L".png";
-			path2=L"img/bird/over3_" + std::to_wstring(i) + L".png";
-			loadimage(&bird_anim[i], path1.c_str(), w, h);
-			loadimage(&bird_over3[i], path2.c_str(), w, h);
-		}
-		for (size_t i = 0; i < 4; i++) {
-			wstring path;
-			path = L"img/bird/get_point" + std::to_wstring(i) + L".png";
-			loadimage(&point[i], path.c_str(), 100, 100);
-		}
-		loadimage(&bird_over1, _T("img/bird/over1.png"), w, h);
-		loadimage(&bird_over2, _T("img/bird/over2.png"), w, h);
-	}
-	void go_up() {
-		if (uptimes >= 19)
-			pos.y -= 19;
-		else if (uptimes >= 15)pos.y -= 15;
-		else if (uptimes >= 10)pos.y -= 12;
-		else if (uptimes >= 5)pos.y -= 5;
-		else pos.y -= 2;
-		uptimes--;
-	}
-	void go_down(bool gravity) {
-		if (gravity) {
-			if (real_frame_counter % 4 == 0)downspeed++;
-			pos.y += downspeed;
-			if (pos.y >= 800)pos.y = -180;
-		}
-	}
-	void over() {
-		if (real_frame_counter % 2 == 0)downspeed++;
-		pos.y += downspeed;
-	}
-	void clear() {
-		pos.x = 280;
-		pos.y = -150;
-		uptimes = 0;
-		downspeed = 4;
-	}
+    QuitButton(int x, int y, int w, int h, int type, bool* running)
+            : Button(x, y, w, h, type), running_location(running) {
+        X.second = X.first + w;
+        Y.second = Y.first + h;
+    }
+
+    void animate(int idx) {
+        if (animing) {
+            putimage_alpha(pos.x, pos.y, &button_anim[idx]);
+            if (idx == 2) {
+                animing = false;
+                *running_location = false;
+            }
+        } else {
+            putimage_alpha(pos.x, pos.y, &button_anim[0]);
+        }
+    }
 };
-class barrier {
+
+// BGM按钮类，继承自Button
+class BgmButton : public Button {
 public:
-	POINT pos;
-	IMAGE barrier_res;
-	bool flag;
-	std::pair<int, int>X;
-    std::pair<int, int>Y;
-	int type;
-	barrier(int n,int seed,int hardtype):flag(false){
-		srand(seed);
-		pos.x = 1440;
-		type = n;
-		switch (type) {
-		case 1:
-			loadimage(&barrier_res, _T("img/barrier/0.png"), 100, 400);
-			pos.y = rand() % (hardtype * 3 + 260)-290;
-			break;
-		case 2:
-			loadimage(&barrier_res, _T("img/barrier/1.png"), 100, 400);
-			pos.y = rand() % (hardtype * 3 + 250) + 480;
-			break;
-		}
-	}
-	void go_left(int speedup) {
-		pos.x -= 4 + speedup;
-		X.first = pos.x - 53, X.second = pos.x + 40;
-		Y.first = pos.y - 73, Y.second = pos.y + 360;
-	}
+    int record;
+    int change_num;
+
+    BgmButton(int x, int y, int w, int h, int type)
+            : Button(x, y, w, h, type), record(0), change_num(0) {
+        X.second = X.first + w;
+        Y.second = Y.first + h;
+    }
+
+    void animate(int idx) {
+        if (animing) {
+            if (change_num % 2 == 0) {
+                putimage_alpha(pos.x, pos.y, &button_anim[idx]);
+            } else {
+                putimage_alpha(pos.x, pos.y, &button_anim[2 - idx]);
+            }
+            if (idx == 2) {
+                animing = false;
+                if (++change_num % 2) {
+                    mciSendString(_T("pause bgm"), NULL, 0, NULL);
+                    record = 2;
+                } else {
+                    mciSendString(_T("resume bgm"), NULL, 0, NULL);
+                    record = 0;
+                }
+            }
+        } else {
+            putimage_alpha(pos.x, pos.y, &button_anim[record]);
+        }
+    }
+};
+
+// 记分板类
+class Board {
+public:
+    IMAGE up_stage;
+    IMAGE down_stage;
+
+    Board() {
+        loadimage(&up_stage, _T("img/board/0.png"), 242, 240);
+        loadimage(&down_stage, _T("img/board/1.png"), 242, 240);
+    }
+
+    void stage(int board_down_time, int board_comeout) {
+        if (board_comeout > 0) {
+            putimage_alpha(490, 520 + board_comeout * 4, &down_stage);
+        } else {
+            if (board_down_time > 0) {
+                putimage_alpha(490, 520, &down_stage);
+            } else {
+                putimage_alpha(490, 520, &up_stage);
+            }
+        }
+    }
+
+    void show_point(int point, int board_comeout) {
+        if (point > 0) {
+            settextstyle(63, 22, _T("方正姚体"));
+            settextcolor(YELLOW);
+            setbkmode(TRANSPARENT);
+            if (point < 20) {
+                outtextxy(675, 620, to_wstring(point / 2).c_str());
+            } else {
+                outtextxy(664, 620, to_wstring(point / 2).c_str());
+            }
+        }
+    }
+};
+
+// 鸟类
+class Bird {
+public:
+    POINT pos;
+    IMAGE bird_anim[bird_anim_num];
+    IMAGE bird_over1, bird_over2, bird_over3[bird_anim_num];
+    IMAGE point[bird_anim_num];
+    int getting_point;
+    int uptimes;
+    int downspeed;
+
+    Bird(int x = 280, int y = -150, int w = 110, int h = 110)
+            : pos({ x, y }), uptimes(0), downspeed(4), getting_point(0) {
+        load_bird(w, h);
+    }
+
+    void load_bird(int w, int h) {
+        for (size_t i = 0; i < bird_anim_num; i++) {
+            wstring path1, path2;
+            path1 = L"img/bird/" + std::to_wstring(i) + L".png";
+            path2 = L"img/bird/over3_" + std::to_wstring(i) + L".png";
+            loadimage(&bird_anim[i], path1.c_str(), w, h);
+            loadimage(&bird_over3[i], path2.c_str(), w, h);
+        }
+        for (size_t i = 0; i < 4; i++) {
+            wstring path;
+            path = L"img/bird/get_point" + std::to_wstring(i) + L".png";
+            loadimage(&point[i], path.c_str(), 100, 100);
+        }
+        loadimage(&bird_over1, _T("img/bird/over1.png"), w, h);
+        loadimage(&bird_over2, _T("img/bird/over2.png"), w, h);
+    }
+
+    void go_up() {
+        if (uptimes >= 19) {
+            pos.y -= 19;
+        } else if (uptimes >= 15) {
+            pos.y -= 15;
+        } else if (uptimes >= 10) {
+            pos.y -= 12;
+        } else if (uptimes >= 5) {
+            pos.y -= 5;
+        } else {
+            pos.y -= 2;
+        }
+        uptimes--;
+    }
+
+    void go_down(bool gravity) {
+        if (gravity) {
+            if (real_frame_counter % 4 == 0) {
+                downspeed++;
+            }
+            pos.y += downspeed;
+            if (pos.y >= 800) {
+                pos.y = -180;
+            }
+        }
+    }
+
+    void over() {
+        if (real_frame_counter % 2 == 0) {
+            downspeed++;
+        }
+        pos.y += downspeed;
+    }
+
+    void clear() {
+        pos.x = 280;
+        pos.y = -150;
+        uptimes = 0;
+        downspeed = 4;
+    }
+};
+
+// 障碍物类
+class Barrier {
+public:
+    POINT pos;
+    IMAGE barrier_res;
+    bool flag;
+    std::pair<int, int> X;
+    std::pair<int, int> Y;
+    int type;
+
+    Barrier(int n, int seed, int hardtype) : flag(false) {
+        srand(seed);
+        pos.x = 1440;
+        type = n;
+        switch (type) {
+            case 1:
+                loadimage(&barrier_res, _T("img/barrier/0.png"), 100, 400);
+                pos.y = rand() % (hardtype * 3 + 260) - 290;
+                break;
+            case 2:
+                loadimage(&barrier_res, _T("img/barrier/1.png"), 100, 400);
+                pos.y = rand() % (hardtype * 3 + 250) + 480;
+                break;
+        }
+    }
+
+    void go_left(int speedup) {
+        pos.x -= 4 + speedup;
+        X.first = pos.x - 53;
+        X.second = pos.x + 40;
+        Y.first = pos.y - 73;
+        Y.second = pos.y + 360;
+    }
 };

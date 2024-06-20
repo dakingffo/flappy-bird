@@ -1,83 +1,122 @@
 #pragma once
 #include "class.h"
-int real_frame_counter = 0;
-int back_ground_frame_counter = 0;
-int bird_frame_counter = 0;
-int button_frame_counter = 0;
-bool button_animing = false;
-const int background_anim_num = 480;
-IMAGE background[background_anim_num];
+
+// 全局变量声明
+int RealFrameCounter = 0;
+int BackGroundFrameCounter = 0;
+int BirdFrameCounter = 0;
+int ButtonFrameCounter = 0;
+int BirdAnimNum = 50;
+bool ButtonAniming = false;
+const int BackgroundAnimNum = 480;
+IMAGE Background[BackgroundAnimNum];
+
+// 带透明度的图片显示函数
 inline void putimage_alpha(int x, int y, IMAGE* img) {
-	int w = img->getwidth();
-	int h = img->getheight();
-	AlphaBlend(GetImageHDC(NULL), x, y, w, h, GetImageHDC(img), 0, 0, w, h, { AC_SRC_OVER,0,255,AC_SRC_ALPHA });
+    int w = img->getwidth();
+    int h = img->getheight();
+    AlphaBlend(GetImageHDC(NULL), x, y, w, h, GetImageHDC(img), 0, 0, w, h, { AC_SRC_OVER,0,255,AC_SRC_ALPHA });
 }
-inline void menu_animation(bird& title_bird, quit_button& thequit, play_button& theplay, bgm_button& thebgm, text& thetext,int best,bool gaming) {
-	if (++real_frame_counter % 2 == 0)
-		back_ground_frame_counter++;
-	if (real_frame_counter % 3 == 0)bird_frame_counter++;
-	back_ground_frame_counter = back_ground_frame_counter % background_anim_num;
-	bird_frame_counter = bird_frame_counter % bird_anim_num;
-	cleardevice();
-	putimage(0, 0, &background[back_ground_frame_counter]);
-	if(!button_animing&&!gaming||thebgm.animing)putimage_alpha(title_bird.pos.x, title_bird.pos.y=35, &title_bird.bird_anim[bird_frame_counter]);
-	else putimage_alpha(title_bird.pos.x, title_bird.pos.y-=17, &title_bird.bird_anim[bird_frame_counter]);
-	for (size_t i = 0; i < 2; i++)
-		putimage_alpha(thetext.pos[i].x, thetext.pos[i].y, &thetext.context[i]);
-	if (button_animing&&real_frame_counter % 6 == 0)
-		button_frame_counter++;
-	thequit.anime(button_frame_counter);
-	theplay.anime(button_frame_counter);
-	thebgm.anime(button_frame_counter);
-	if (button_frame_counter == 2)button_animing = false, button_frame_counter = 0;
-	settextstyle(85, 45, _T("方正姚体"));
-	settextcolor(YELLOW);
-	setbkmode(TRANSPARENT);
-	outtextxy(850, 296, to_wstring(best).c_str());
+
+// 菜单动画函数
+inline void menu_animation(Bird& TitleBird, QuitButton& TheQuit, PlayButton& ThePlay, BgmButton& TheBgm, Text& TheText, int Best, bool Gaming) {
+    if (++RealFrameCounter % 2 == 0)
+        BackGroundFrameCounter++;
+    if (RealFrameCounter % 3 == 0)
+        BirdFrameCounter++;
+
+    BackGroundFrameCounter = BackGroundFrameCounter % BackgroundAnimNum;
+
+    BirdFrameCounter = BirdFrameCounter % BirdAnimNum;
+
+    cleardevice();
+    putimage(0, 0, &Background[BackGroundFrameCounter]);
+
+    if (!ButtonAniming && !Gaming || TheBgm.animing)
+        putimage_alpha(TitleBird.pos.x, TitleBird.pos.y = 35, &TitleBird.bird_anim[BirdFrameCounter]);
+    else
+        putimage_alpha(TitleBird.pos.x, TitleBird.pos.y -= 17, &TitleBird.bird_anim[BirdFrameCounter]);
+
+    for (size_t i = 0; i < 2; i++)
+        putimage_alpha(TheText.pos[i].x, TheText.pos[i].y, &TheText.context[i]);
+
+    if (ButtonAniming && RealFrameCounter % 6 == 0)
+        ButtonFrameCounter++;
+
+    TheQuit.animate(ButtonFrameCounter);
+    ThePlay.animate(ButtonFrameCounter);
+    TheBgm.animate(ButtonFrameCounter);
+
+    if (ButtonFrameCounter == 2)
+        ButtonAniming = false, ButtonFrameCounter = 0;
+
+    settextstyle(85, 45, _T("方正姚体"));
+    settextcolor(YELLOW);
+    setbkmode(TRANSPARENT);
+    outtextxy(850, 296, reinterpret_cast<LPCTSTR>(to_wstring(Best).c_str()));
 }
-inline void gaming_animation(int end, int overtype , bird& player, vector<barrier>& barriers,board& theboard,int board_down_time,text&thetext,bool new_record,int board_comeout) {
-	if (++real_frame_counter % 2 == 0)
-		back_ground_frame_counter++;
-	if (real_frame_counter % 3 == 0)bird_frame_counter++;
-	back_ground_frame_counter = back_ground_frame_counter % background_anim_num;
-	bird_frame_counter = bird_frame_counter % bird_anim_num;
-	cleardevice();
-	putimage(0, 0, &background[back_ground_frame_counter]);
-	if (!end)putimage_alpha(player.pos.x, player.pos.y, &player.bird_anim[bird_frame_counter]);
-	else switch (overtype) {
-		case 1:putimage_alpha(player.pos.x, player.pos.y, &player.bird_over1); break;
-		case 2:putimage_alpha(player.pos.x, player.pos.y, &player.bird_over2); break;
-		case 3:putimage_alpha(player.pos.x, player.pos.y, &player.bird_over3[bird_frame_counter]); break;
-		}
-	if (player.getting_point) {
-		static int Y;
-		if(player.getting_point==40)Y = player.pos.y;
-		putimage_alpha(player.pos.x + 65, Y -  19 * (4 - player.getting_point / 10), &player.point[player.getting_point / 10 - 1]);
-		if(real_frame_counter % 3 == 0)player.getting_point -= 10;
-	}
-	if(end>0&&new_record)putimage_alpha(thetext.pos[2].x, thetext.pos[2].y, &thetext.context[2]);
-	for (int i = 0; i < barriers.size(); i++)
-		putimage_alpha(barriers[i].pos.x, barriers[i].pos.y, &barriers[i].barrier_res);
-	theboard.stage(board_down_time,board_comeout);
+
+// 游戏动画函数
+inline void gaming_animation(int End, int OverType, Bird& Player, vector<Barrier>& Barriers, Board& TheBoard, int BoardDownTime, Text& TheText, bool NewRecord, int BoardComeOut) {
+    if (++RealFrameCounter % 2 == 0)
+        BackGroundFrameCounter++;
+    if (RealFrameCounter % 3 == 0)
+        BirdFrameCounter++;
+
+    BackGroundFrameCounter = BackGroundFrameCounter % BackgroundAnimNum;
+    BirdFrameCounter = BirdFrameCounter % BirdAnimNum;
+
+    cleardevice();
+    putimage(0, 0, &Background[BackGroundFrameCounter]);
+
+    if (!End)
+        putimage_alpha(Player.pos.x, Player.pos.y, &Player.bird_anim[BirdFrameCounter]);
+    else
+        switch (OverType) {
+            case 1: putimage_alpha(Player.pos.x, Player.pos.y, &Player.bird_over1); break;
+            case 2: putimage_alpha(Player.pos.x, Player.pos.y, &Player.bird_over2); break;
+            case 3: putimage_alpha(Player.pos.x, Player.pos.y, &Player.bird_over3[BirdFrameCounter]); break;
+        }
+
+    if (Player.getting_point) {
+        static int Y;
+        if (Player.getting_point == 40)
+            Y = Player.pos.y;
+        putimage_alpha(Player.pos.x + 65, Y - 19 * (4 - Player.getting_point / 10), &Player.point[Player.getting_point / 10 - 1]);
+        if (RealFrameCounter % 3 == 0)
+            Player.getting_point -= 10;
+    }
+
+    if (End > 0 && NewRecord)
+        putimage_alpha(TheText.pos[2].x, TheText.pos[2].y, &TheText.context[2]);
+
+    for (int i = 0; i < Barriers.size(); i++)
+        putimage_alpha(Barriers[i].pos.x, Barriers[i].pos.y, &Barriers[i].barrier_res);
+
+    TheBoard.stage(BoardDownTime, BoardComeOut);
 }
+
+// 声音初始化函数
 inline void sound() {
-	mciSendString(_T("open sound/get_point_sound.mp3 alias point"), NULL, 0, NULL);
-	mciSendString(_T("open sound/dead_sound.mp3 alias dead"), NULL, 0, NULL);
-	mciSendString(_T("open sound/jump_sound.mp3 alias jump"), NULL, 0, NULL);
-	mciSendString(_T("open sound/back_ground_music.mp3 alias bgm"), NULL, 0, NULL);
-	mciSendString(_T("open sound/button1.mp3 alias bgm_button"), NULL, 0, NULL);
-	mciSendString(_T("open sound/button0.mp3 alias button"), NULL, 0, NULL);
-	mciSendString(_T("play bgm repeat from 0"), NULL, 0, NULL);
+    mciSendString(_T("open sound/get_point_sound.mp3 alias point"), NULL, 0, NULL);
+    mciSendString(_T("open sound/dead_sound.mp3 alias dead"), NULL, 0, NULL);
+    mciSendString(_T("open sound/jump_sound.mp3 alias jump"), NULL, 0, NULL);
+    mciSendString(_T("open sound/back_ground_music.mp3 alias bgm"), NULL, 0, NULL);
+    mciSendString(_T("open sound/button1.mp3 alias bgm_button"), NULL, 0, NULL);
+    mciSendString(_T("open sound/button0.mp3 alias button"), NULL, 0, NULL);
+    mciSendString(_T("play bgm repeat from 0"), NULL, 0, NULL);
 }
+
+// 背景加载函数
 void load_background() {
-	for (size_t i = 0; i < background_anim_num; i++) {
-		std::wstring path;
-		if (i >= 100)
-			path = L"img/background/合成 1/合成 1_00" + std::to_wstring(i) + L".png";
-		else if (i >= 10)
-			path = L"img/background/合成 1/合成 1_000" + std::to_wstring(i) + L".png";
-		else
-			path = L"img/background/合成 1/合成 1_0000" + std::to_wstring(i) + L".png";
-		loadimage(&background[i], path.c_str());
-	}
+    for (size_t i = 0; i < BackgroundAnimNum; i++) {
+        std::wstring path;
+        if (i >= 100)
+            path = L"img/background/pics/pics_00" + std::to_wstring(i) + L".png";
+        else if (i >= 10)
+            path = L"img/background/pics/pics_000" + std::to_wstring(i) + L".png";
+        else
+            path = L"img/background/pics/pics_0000" + std::to_wstring(i) + L".png";
+        loadimage(&Background[i], reinterpret_cast<LPCTSTR>(path.c_str()));
+    }
 }

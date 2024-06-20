@@ -1,7 +1,9 @@
 #include "Rank.h"
 #include "vector"
 #include <graphics.h>
-#include <conio.h> // for _getch()
+#include <conio.h>
+
+inline void putimage_alpha(int x, int y, IMAGE* img);
 
 Rank::Rank(const std::string& filename) : filename(filename) {}
 
@@ -36,11 +38,11 @@ void Rank::display(){
 
     IMAGE background;
     loadimage(&background, _T("img/background.jpg"));
-    putimage(0, 0, &background);
+    putimage_alpha(0, 0, &background);
     setbkmode(TRANSPARENT);
     settextcolor(BLACK);
     settextstyle(24, 10, "微软雅黑");  // 设置字体样式和大小
-    outtextxy(220, 470, "Quit");
+    outtextxy(235, 470, "Quit");
     outtextxy(50, 470, "Reset Rank");
     int y = 150;
     int rank = 1;
@@ -57,13 +59,13 @@ void Rank::display(){
 
     // 绘制退出按钮
     IMAGE quit_button;
-    loadimage(&quit_button, _T("img/button/1/2.png"), 100, 50);
-    putimage(200, 500, &quit_button);
+    loadimage(&quit_button, _T("img/button/1/2.png"), 100, 100);
+    putimage_alpha(200, 500, &quit_button);
 
     // 绘制清空按钮
     IMAGE reset_button;
-    loadimage(&reset_button, _T("img/button/2/1.png"), 100, 50);
-    putimage(50, 500, &reset_button);
+    loadimage(&reset_button, _T("img/button/2/1.png"), 100, 100);
+    putimage_alpha(50, 500, &reset_button);
 
     // 等待用户点击按钮
     while (true) {
@@ -96,7 +98,7 @@ void Rank::displayEmptyMessage() const {
 
     IMAGE background;
     loadimage(&background, _T("img/background.jpg"));
-    putimage(0, 0, &background);
+    putimage_alpha(0, 0, &background);
     setbkmode(TRANSPARENT);
     settextcolor(BLACK);
     settextstyle(24, 10, "微软雅黑");  // 设置字体样式和大小
@@ -105,13 +107,13 @@ void Rank::displayEmptyMessage() const {
 
     // 绘制退出按钮
     IMAGE quit_button;
-    loadimage(&quit_button, _T("img/button/1/2.png"), 100, 50);
-    putimage(200, 500, &quit_button);
+    loadimage(&quit_button, _T("img/button/1/2.png"), 100, 100);
+    putimage_alpha(200, 500, &quit_button);
 
     // 绘制清空按钮
     IMAGE reset_button;
-    loadimage(&reset_button, _T("img/button/2/1.png"), 100, 50);
-    putimage(50, 500, &reset_button);
+    loadimage(&reset_button, _T("img/button/2/1.png"), 100, 100);
+    putimage_alpha(50, 500, &reset_button);
 
     // 等待用户点击按钮
     while (true) {
@@ -136,4 +138,10 @@ void Rank::displayEmptyMessage() const {
 
 bool comparePlayers(const Player& a, const Player& b) {
     return a.score > b.score;  // 从大到小排序
+}
+
+inline void putimage_alpha(int x, int y, IMAGE* img) {
+    int w = img->getwidth();
+    int h = img->getheight();
+    AlphaBlend(GetImageHDC(NULL), x, y, w, h, GetImageHDC(img), 0, 0, w, h, { AC_SRC_OVER,0,255,AC_SRC_ALPHA });
 }
