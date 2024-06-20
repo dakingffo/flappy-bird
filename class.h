@@ -17,6 +17,7 @@ const int bird_anim_num = 5;
 const int button_anim_num = 3;
 bool bgm = true;
 inline void putimage_alpha(int x, int y, IMAGE* img);
+//文本类
 class text {
 public:
 	POINT pos[3];
@@ -30,6 +31,7 @@ public:
 		loadimage(&context[2], _T("img/text/new_record.png"), 400, 400);
 	}
 };
+//按钮类和它的派生类
 class button {
 public:
 	POINT pos;
@@ -122,7 +124,7 @@ public:
 			putimage_alpha(pos.x, pos.y, &button_anim[record]);
 	}
 };
-
+//计分板类
 class board {
 public:
 	IMAGE up_stage;
@@ -151,6 +153,7 @@ public:
 		}
 	}
 };
+//鸟类 包含资源加载和属性行为
 class bird {
 public:
 	POINT pos;
@@ -206,6 +209,7 @@ public:
 		downspeed = 4;
 	}
 };
+//障碍物类 vector的成员
 class barrier {
 public:
 	POINT pos;

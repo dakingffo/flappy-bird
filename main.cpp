@@ -1,5 +1,6 @@
 #include "class.h"
 #include "anime_and_sound.h"
+//结束函数
 bool checkend(bool &gravity, bird& player,vector<barrier>::iterator i,int &overtype) {
 	if (i->type == 1 && player.pos.y <= i->Y.second || i->type == 2 && player.pos.y >= i->Y.first)
 		if (i->X.first - 10 <= player.pos.x && player.pos.x <= i->X.first + 10) {
@@ -20,6 +21,7 @@ bool checkend(bool &gravity, bird& player,vector<barrier>::iterator i,int &overt
 }
 int main() {
 	int best;
+	//从文件读取历史最佳成绩
 	FILE* fp;
 	fopen_s(&fp,"record.txt", "r");
 	if (fscanf_s(fp, "%d", &best)==EOF)best = 0;
@@ -44,6 +46,7 @@ int main() {
 	while (running) {
 		DWORD begin_time = GetTickCount();
 		menu_animation(title_bird,thequit,theplay,thebgm,thetext,best,gaming);
+		//捕获鼠标输入
 		while (peekmessage(&msg)) {
 			if (msg.message == WM_LBUTTONDOWN) {
 				if (theplay.check(msg.x, msg.y)) {
@@ -70,6 +73,7 @@ int main() {
 				int hardtype = 0;
 				int point_count = 0;
 				bool new_record = false;
+				//以下是游戏运行逻辑
 				while (gaming) {
 					board_comeout--;
 					gaming_frame_counter++;
@@ -117,11 +121,13 @@ int main() {
 					gaming_animation(end, overtype, player, barriers, theboard, board_down_time,thetext,new_record,board_comeout);
 					theboard.show_point(point_count,board_comeout);
 					FlushBatchDraw();
+					//帧率控制系统 防止爆内存
 					DWORD end_time = GetTickCount();
 					DWORD dtime = end_time - begin_time;
 					if (dtime < 1000 / 75)
 						Sleep(1000 / 75 - dtime);
 				}
+				//分数总结
 				if (point_count/2 > best) {
 					best = point_count/2;
 					fopen_s(&fp, "record.txt", "w");

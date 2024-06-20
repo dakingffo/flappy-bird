@@ -1,5 +1,6 @@
 #pragma once
 #include "class.h"
+//一些全局变量控件
 int real_frame_counter = 0;
 int back_ground_frame_counter = 0;
 int bird_frame_counter = 0;
@@ -7,11 +8,13 @@ int button_frame_counter = 0;
 bool button_animing = false;
 const int background_anim_num = 480;
 IMAGE background[background_anim_num];
+//透明度图片函数
 inline void putimage_alpha(int x, int y, IMAGE* img) {
 	int w = img->getwidth();
 	int h = img->getheight();
 	AlphaBlend(GetImageHDC(NULL), x, y, w, h, GetImageHDC(img), 0, 0, w, h, { AC_SRC_OVER,0,255,AC_SRC_ALPHA });
 }
+//菜单动画函数
 inline void menu_animation(bird& title_bird, quit_button& thequit, play_button& theplay, bgm_button& thebgm, text& thetext,int best,bool gaming) {
 	if (++real_frame_counter % 2 == 0)
 		back_ground_frame_counter++;
@@ -35,6 +38,7 @@ inline void menu_animation(bird& title_bird, quit_button& thequit, play_button& 
 	setbkmode(TRANSPARENT);
 	outtextxy(850, 296, to_wstring(best).c_str());
 }
+//游戏动画函数
 inline void gaming_animation(int end, int overtype , bird& player, vector<barrier>& barriers,board& theboard,int board_down_time,text&thetext,bool new_record,int board_comeout) {
 	if (++real_frame_counter % 2 == 0)
 		back_ground_frame_counter++;
@@ -60,6 +64,7 @@ inline void gaming_animation(int end, int overtype , bird& player, vector<barrie
 		putimage_alpha(barriers[i].pos.x, barriers[i].pos.y, &barriers[i].barrier_res);
 	theboard.stage(board_down_time,board_comeout);
 }
+//声音控件
 inline void sound() {
 	mciSendString(_T("open sound/get_point_sound.mp3 alias point"), NULL, 0, NULL);
 	mciSendString(_T("open sound/dead_sound.mp3 alias dead"), NULL, 0, NULL);
@@ -69,6 +74,7 @@ inline void sound() {
 	mciSendString(_T("open sound/button0.mp3 alias button"), NULL, 0, NULL);
 	mciSendString(_T("play bgm repeat from 0"), NULL, 0, NULL);
 }
+//背景资源
 void load_background() {
 	for (size_t i = 0; i < background_anim_num; i++) {
 		std::wstring path;
